@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -13,9 +14,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -34,6 +40,9 @@ import xades4j.utils.DOMHelper;
 @RequestMapping("/sign")
 public class AssinaturaXades {
 	
+	@Autowired
+	private UnzipFile unzipFile;
+	
     private static final String CERT_FOLDER = "/home/renato/Downloads/desenvolvimento/cpd/git/certificado/certificado_auto_assinado/";
     private static final String CERT        = "mycert.pfx";
     private static final String PASS        = "123456"; 
@@ -48,16 +57,29 @@ public class AssinaturaXades {
     private static final String DOCUMENT    = "/home/renato/Downloads/desenvolvimento/cpd/git/certificado/certificados_teste_xades_java/original.xml";
 
 	
-	@GetMapping("/xades")
-	public void signXades() throws Exception {
+	@PostMapping("/xades")
+	public void signXades(@RequestPart("unzipfile") MultipartFile file) throws Exception {
 	    System.out.println("______________________");
         System.out.println("\tSign");
         System.out.println("______________________");
-        signBes();
+        System.out.println(file);
+        String tempFile = unzipFile.unzip(file);
+        String pathFiles = unzipFile.extractAllFiles(tempFile);
+        
+        File folder = new File(pathFiles);
+        File[] listFiles = folder.listFiles();
+        File folderPerm = new File(listFiles[0].getAbsolutePath());
+        File[] listOfFiles = folderPerm.listFiles();
+        for(int i = 0; i < listOfFiles.length; i++){
+            String filename = listOfFiles[i].getName();
+            if(filename.endsWith(".xml")||filename.endsWith(".XML")) {
+            	signBes(folderPerm+"/"+filename);
+            }
+        }
 	}
 	
 	
-	private void signBes() throws Exception {
+	private void signBes(String file) throws Exception {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
