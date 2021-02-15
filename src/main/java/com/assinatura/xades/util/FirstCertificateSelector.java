@@ -1,4 +1,4 @@
-package com.assinatura.xades.assinatura;
+package com.assinatura.xades.util;
 
 import java.security.cert.X509Certificate;
 import java.util.List;

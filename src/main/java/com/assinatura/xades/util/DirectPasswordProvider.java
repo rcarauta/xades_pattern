@@ -1,4 +1,4 @@
-package com.assinatura.xades.assinatura;
+package com.assinatura.xades.util;
 
 import xades4j.providers.impl.KeyStoreKeyingDataProvider.KeyEntryPasswordProvider;
 import xades4j.providers.impl.KeyStoreKeyingDataProvider.KeyStorePasswordProvider;

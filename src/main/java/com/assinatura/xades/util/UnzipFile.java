@@ -1,4 +1,4 @@
-package com.assinatura.xades.assinatura;
+package com.assinatura.xades.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +14,13 @@ import net.lingala.zip4j.exception.ZipException;
 
 @Component
 public class UnzipFile {
-
+	
 	@Autowired
 	private ServletContext servletContext;
 
 
 	public String unzip(MultipartFile file) throws IOException {
-		String path = servletContext.getRealPath("")+"lote_documento.zip";
+		String path = servletContext.getRealPath("")+"loteCertificado.zip";
 		File tempFile = new File(path);
 		tempFile.createNewFile();
 	    file.transferTo(tempFile);
@@ -31,7 +31,7 @@ public class UnzipFile {
 	public String extractAllFiles(String tempFile) {
 		try {
 	         ZipFile zipFile = new ZipFile(tempFile);
-	         String pathFiles = tempFile.replaceAll("lote_documento.zip","");
+	         String pathFiles = tempFile.replaceAll("loteCertificado.zip","");
 	         zipFile.extractAll(pathFiles);
 	         return pathFiles;
 	    } catch (ZipException e) {
@@ -39,7 +39,5 @@ public class UnzipFile {
 	    }
 		
 	}
-
-
 
 }

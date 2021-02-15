@@ -1,10 +1,10 @@
-package com.assinatura.xades.assinatura;
+package br.unb.certificado.certificado;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AssinaturaApplicationTests {
+class CertificadoApplicationTests {
 
 	@Test
 	void contextLoads() {
