@@ -54,16 +54,14 @@ public class AssinaturaXadesService {
 	//retirar isso aqui 
     private static final String SIGNED      = "/home/renato/Downloads/certificado/diploma/diploma_sign"; 
 
-	public void sign(String file, Integer numero, String password, String certificado, Integer idPessoa) throws Exception {
-		System.out.println("Entrou aqui no signBes1");
+	public void sign(String file, Integer numero, String password, String certificado, Integer idPessoa, Integer idAluno) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new InputSource(new StringReader(readFile.readFile(file))));
 		
         Element elem = doc.getDocumentElement();
-
-        System.out.println("Element = "+elem);
-
+        
+        //sign first element DadosDiploma
         KeyingDataProvider kdp = new FileSystemKeyStoreKeyingDataProvider(
                 "pkcs12",
                 certificado,
@@ -72,18 +70,41 @@ public class AssinaturaXadesService {
                 new DirectPasswordProvider(password),
                 true);
         
-        elem.setIdAttribute("ID", true);
-        DataObjectDesc obj = new DataObjectReference("#" + elem.getAttribute("ID"))
+        elem.getElementsByTagName("DadosDiploma");  
+        
+        //elem.setIdAttribute("ID", true);
+        DataObjectDesc obj = new DataObjectReference(elem.getAttribute("id"))
                 .withTransform(new EnvelopedSignatureTransform());
         SignedDataObjects dataObjs = new SignedDataObjects().withSignedDataObject(obj);
 
-        //XadesSigner signer = new XadesBesSigningProfile(kdp).newSigner();
-        //XadesSigner signer = new XadesTSigningProfile(kdp).newSigner();
-        XadesSigner signer = new XadesTSigningProfile(kdp).newSigner();
-             
-        System.out.println("Asinatura qui >>>>>>>>>>>>>>>");
-        signer.sign(dataObjs, elem);
-        System.out.println("Singer sign >>>>>>>>>");
+        XadesSigner signer = new XadesTSigningProfile(kdp).newSigner();          
+        XadesSignatureResult xadesResult = signer.sign(dataObjs, elem);
+        doc.getDocumentElement().getFirstChild().getFirstChild().appendChild(xadesResult.getSignature().getElement());
+        
+        
+        //find secound element DadosRegistro
+        elem.getElementsByTagName("DadosRegistro");  
+        
+        //elem.setIdAttribute("ID", true);
+        obj = new DataObjectReference(elem.getAttribute("id"))
+                .withTransform(new EnvelopedSignatureTransform());
+        dataObjs = new SignedDataObjects().withSignedDataObject(obj);
+        signer = new XadesTSigningProfile(kdp).newSigner();         
+        xadesResult = signer.sign(dataObjs, elem);  
+        doc.getDocumentElement().getFirstChild().getFirstChild().getNextSibling().appendChild(xadesResult.getSignature().getElement());
+       
+       
+        //find geral element Diploma
+        elem.getElementsByTagName("Diploma");  
+        
+        //elem.setIdAttribute("ID", true);
+        obj = new DataObjectReference("")
+                .withTransform(new EnvelopedSignatureTransform());
+        dataObjs = new SignedDataObjects().withSignedDataObject(obj);
+        signer = new XadesTSigningProfile(kdp).newSigner();           
+        xadesResult = signer.sign(dataObjs, elem);
+       
+        
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
@@ -91,11 +112,15 @@ public class AssinaturaXadesService {
         StreamResult result = new StreamResult(fileSign);
         transformer.transform(source, result);
         
+        System.out.println("Assinou diploma "+numero);
+        
         Diploma diploma = new Diploma();
         diploma.setIdPessoa(idPessoa);
+        diploma.setIdAluno(idAluno);
         diploma.setDiplomaBase64(Base64.getEncoder().encodeToString(Files.readAllBytes(fileSign.toPath())));
         
         this.salvarDiploma(diploma);
+        System.out.println("Salvou no banco de dados "+numero);
         
     }
 	

@@ -22,9 +22,13 @@ public class UnzipFile {
 	public String unzip(MultipartFile file) throws IOException {
 		String path = servletContext.getRealPath("")+"loteCertificado.zip";
 		File tempFile = new File(path);
-		tempFile.createNewFile();
-	    file.transferTo(tempFile);
-	    return path;
+		boolean created = tempFile.createNewFile();
+		if(created) {
+		    file.transferTo(tempFile);
+		    return path;
+		} else {
+			return "error";
+		}
 	}
 
 
@@ -39,5 +43,6 @@ public class UnzipFile {
 	    }
 		
 	}
+	
 
 }

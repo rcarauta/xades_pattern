@@ -16,12 +16,14 @@ public class Diploma {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Lob
-	@Column
+	@Column(name = "diploma_base64", columnDefinition="TEXT")
 	private String diplomaBase64;
 
-	@Column
+	@Column(name = "id_pessoa")
 	private Integer idPessoa;
+
+	@Column(name = "id_aluno")
+	private Integer idAluno;
 
 	public Integer getId() {
 		return id;
@@ -45,6 +47,14 @@ public class Diploma {
 
 	public void setIdPessoa(Integer idPessoa) {
 		this.idPessoa = idPessoa;
+	}
+
+	public Integer getIdAluno() {
+		return idAluno;
+	}
+
+	public void setIdAluno(Integer idAluno) {
+		this.idAluno = idAluno;
 	}
 
 }
